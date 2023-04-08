@@ -5,9 +5,9 @@
 #define MAX_PILHA 50
 
 void inicializa_pilha( Pilha *p, int c ){
-    p->topo = -1;
-    p->dados = malloc( sizeof( int ) * c );
-    p->capacidade = c;
+	p->topo = -1;
+	p->dados = malloc( sizeof( int ) * c );
+	p->capacidade = c;
 }
 
 int pilha_vazia (Pilha p){
@@ -27,7 +27,7 @@ int empilha (Pilha *p, int v){
     return 1;
 }
 
-int desempilha(Pilha *p, int *info){
+int desempilha(Pilha *p, int *info) {
     if(pilha_vazia(*p)){
         return ERRO_PILHA_VAZIA;
     }
@@ -40,12 +40,12 @@ int le_topo (Pilha p, int *info){
     if(pilha_vazia(p)){
         return ERRO_PILHA_VAZIA;
     }
-    *info = p.dados[p.topo];
-    return -1;
+     *info = p.dados[p.topo];
+     return -1;
 }
 
 void mostra_pilha(Pilha p){
-    if(pilha_vazia(p)){
+    if(pilha_vazi(p)){
         printf("pilha vazia \n");
     } else {
         printf("dados da pilha\n");
@@ -58,6 +58,6 @@ void mostra_pilha(Pilha p){
 }
 
 void desaloca_pilha( Pilha *p ){
-    free( p->dados );
+	free( p->dados );
 }
 
