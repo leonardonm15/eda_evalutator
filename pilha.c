@@ -36,7 +36,6 @@ int empilha (Pilha *p, int v){
     //*info = p->dados[p->topo];
     //p->topo--;
     return p->dados[p->topo--];
-    //sim isso funciona kkkk
 }
 
 //vo retornar o topo invez de salvar no *info
@@ -48,7 +47,7 @@ int le_topo (Pilha p/*, int *info */){
      return p.dados[p.topo];
 }
 
-void mostra_pilha(Pilha p){
+void mostra_pilha_int(Pilha p){
     if(pilha_vazia(p)){
         printf("pilha vazia \n");
     } else {
@@ -58,9 +57,19 @@ void mostra_pilha(Pilha p){
         }
         printf("\n");
     }
-
 }
 
+void mostra_pilha_char(Pilha p){
+    if(pilha_vazia(p)){
+        printf("pilha vazia \n");
+    } else {
+        printf("dados da pilha\n");
+        for(int i = 0; i <= p.topo; i++){
+            printf("%c ", p.dados[i]);
+        }
+        printf("\n");
+    }
+}
 void desaloca_pilha(Pilha *p ){
 	free( p->dados );
 }
