@@ -6,66 +6,49 @@
 #include <string.h>
 
 #define ERRO_INPUT -2
-#define NOT_OPERATOR -1
 #define FECHAR_SEM_ABRIR -3
 #define ABRIR_SEM_FECHAR -4
 #define CARACTER_INVALIDO -5
 
-
-
-char expression[INT_MAX];
-char saida[INT_MAX];
+char expression[1000];
+char saida[1000];
 Pilha p;
 
-
-// le o input e devolve o tamanho dele
-// todo tratamento de erro que merda é essa
-/*
-void le_input(char exp[], int* size) {
-    for (int i=0; i < INT_MAX; i++) {
-        scanf("%c", &exp[i]);
-        if (exp[i] == '\0') {
-            *size = i + 1;
+int solve(){
+    int resultado = 0;
+    for(int i = 0; i < strlen(saida); i++){
+        char atual = saida[i];
+        if (atual >= '0' && atual <= '9') {
+            int num = atual - '0';
+            empilha(&p, num);
+            resultado = num;
+        } else{
+            int aux;
+            int aux2 = desempilha(&p);
+            if (le_topo(p) == -1) aux = 0;
+            else aux = desempilha(&p);
+            switch(atual){
+                case '+':
+                    resultado = aux + aux2;
+                    break;
+                case '-':
+                    resultado = aux - aux2;
+                    break;
+                case '*':
+                    resultado = aux * aux2;
+                    break;
+                case '/':
+                    resultado = aux / aux2;
+                    break;
+                case '^':
+                    resultado = aux ^ aux2;
+                    break;
+            }
+            empilha(&p, resultado);
         }
     }
+    return resultado;
 }
-*/
-//vo usar essa mesma e so colocar a pot, vou mover la pra baixo so pra separar oq eu fiz
-/*
-int precedencia(char value) {
-    if (value == '(' || value == ')') {
-        return 0;
-    } else if ( value == '-' || value == '+') {
-        return 1;
-    } else {
-        return 2;
-    }
-}
-*/
-
-void append_saida(char exp[], int* index, char value) {
-    exp[*index] = value;
-    *index++;
-}
-
-void register_error(int* flag, int* message_holder, int message) {
-    *flag++;
-    *message_holder = message;
-}
-
-void print_string(char string[]) { 
-    for (int i = 0; string[i] != '\0'; i++) {
-        if (string[i] == '+' || string[i] == '-' || string[i] == '*' || string[i] == '/' || string[i] == '^') {
-            printf("%c", string[i]);
-        } else {
-            printf("%d", string[i]);
-        }
-    }
-    printf("\n");
-}
-
-// ainda nao peguei a visão daquele X que ele usa como auxiliar pra botar na string 
-// eu acho que é so a variavel que ele usa pra segurar o pop, mas to fudido do cerebelo ja
 
 int precedencia(char value) {
     switch(value){
@@ -82,8 +65,8 @@ int precedencia(char value) {
     }
 }
 
-void transforma() {
-    char atual, aux, valor_desempilhado;
+int transforma(char *invalid_char) {
+    char atual, aux;
     int j = 0;
 
     for (int i = 0; i < strlen(expression); i++) {
@@ -93,120 +76,78 @@ void transforma() {
                 empilha(&p, atual);
                 break;
             case ')':
-                while ((valor_desempilhado = desempilha(&p, &aux)) != '(') {
-                    saida[j++] = valor_desempilhado;
+                while (le_topo(p) != '(') {
+                    if(p.topo == -1) {
+                        return FECHAR_SEM_ABRIR;
+                    }
+                    saida[j++] = desempilha(&p);
                 }
+                aux = desempilha(&p);
                 break;
+            case '^':
             case '*' ... '/': // caracteres incluidos ->  * + , - . / */
-                while (!pilha_vazia(p) && precedencia(ultimo_add(&p, &aux)) >= precedencia(atual)) {
-                    saida[j++] = desempilha(&p, &aux);
+                while (!pilha_vazia(p) && precedencia(le_topo(p)) >= precedencia(atual)) {
+                    saida[j++] = desempilha(&p);
                 }
                 empilha(&p, atual);
                 break;
-            default:
+            case '0' ... '9':
                 saida[j++] = atual;
                 break;
+            default:
+                *invalid_char = atual;
+                return CARACTER_INVALIDO;
         }
     }
-
     while (!pilha_vazia(p)) {
-        saida[j++] = desempilha(&p, &aux);
+        aux = desempilha(&p);
+        if (aux == '(') return ABRIR_SEM_FECHAR;
+        saida[j++] = aux; 
     }
-
-    saida[j] = '\0'; // termina a string com o caractere nulo
+    saida[++j] = '\0'; // termina a string com o caractere nulo
+    return 1;
 }
-
 
 void printa(){
     int i = 0;
-
     while(saida[i]){
-        printf("%c", saida[i++]);
+        printf(" %c", saida[i++]);
     }
     printf("\n");
 }
 
-
 int main() {
-    int ERROR_FLAG = 0;
-    int curr_is = 0;
     int size_expression;
-    int ERROR_MESSAGE;
-    char x; // auxiliar char
-
     printf("qual a expressao?\n");
     
     //le_input(expression, &size_expression);
-    fgets(expression, INT_MAX, stdin);
-    //da p usar o fgets e passar o max do vetor so
-
-    //deixei aq so p te mostrar dps, vou tentar passar p uma func separada
-
-    inicializa_pilha(&p, size_expression); 
-    transforma();
-    printa();
-
-    /* for (int i=0; i < size_expression; i++) { */
-    /*     char curr_char = expression[i]; */
-    /*     switch (curr_char) { */
-    /*         case '0' ... '9': */
-    /*             saida[curr_is] = curr_char; */
-    /*             curr_is++; */
-    /*         case '(': */
-    /*             empilha(&p, curr_char); */
-    /*         case ')': */
-    /*             while (le_topo(p, &x) != ERRO_PILHA_CHEIA && x != '(') { */
-    /*                 desempilha(&p, &x); // pilha ta feito pra int */
-    /*                 append_saida(saida, &curr_is, x); */
-    /*             } */
-    /*             if (le_topo(p, &x) == ERRO_PILHA_VAZIA) { */
-    /*                 register_error(&ERROR_FLAG, &ERROR_MESSAGE, FECHAR_SEM_ABRIR); */
-    /*                 break; */
-    /*             } else { */
-    /*                 desempilha(&p, &x); // descarta o ( */
-    /*             } */
-
-    /*         case '*' ... '/': // caracteres incluidos ->  * + , - . / */
-    /*             if (curr_char == ',' || curr_char == '.') { // tirando os invalidos */
-    /*                 register_error(&ERROR_FLAG, &ERROR_MESSAGE, CARACTER_INVALIDO); */
-    /*                 break; */
-    /*             } */
-    /*             if (le_topo(p, &x) == ERRO_PILHA_VAZIA || x == '(') { */
-    /*                 empilha(&p, curr_char); */
-    /*             } else { */
-    /*                 while (le_topo(p, &x) != ERRO_PILHA_VAZIA && precedencia(x) > precedencia(curr_char)) { */
-    /*                     desempliha(&p, &x); */
-    /*                     append_saida(saida, &curr_is, x); */
-    /*                 } */
-    /*                 empilha(&p, curr_char); */
-    /*             } */
-    /*             // sei la, meu cerebelo nao me permite mais compreender esse pseudocodigo em cobol */
-    /*         default: */
-    /*             register_error(&ERROR_FLAG, &ERROR_MESSAGE, CARACTER_INVALIDO); */
-    /*     } */
-    /* } */
-    /* if (!ERROR_FLAG) { */
-    /*     while (le_topo(p, &x) != ERRO_PILHA_VAZIA && x != '(') { */ 
-    /*             desempilha(&p, &x); */
-    /*             append_saida(saida, &curr_is, x); */
-    /*     } */
-    /*     if (le_topo(p, &x) == ERRO_PILHA_VAZIA) { */
-    /*         append_saida(saida, &curr_is,  '\0'); */
-    /*         print_string(saida); */
-    /*         // evaluate_expression() */
-    /*     } else { */
-    /*         register_error(&ERROR_FLAG, &ERROR_MESSAGE, ABRIR_SEM_FECHAR); */
-    /*     } */
-    
-    /* } else if (ERROR_FLAG) { */
-    /*     switch (ERROR_MESSAGE) { */
-    /*         case CARACTER_INVALIDO: */
-    /*             printf("ERRO: caracter invalido!"); */
-    /*         case FECHAR_SEM_ABRIR: */
-    /*             printf("ERRO: ')' sem '('!"); */
-    /*         case ABRIR_SEM_FECHAR: */
-    /*             printf("ERRO: '(' nao foi fechado!"); */
-    /*     } */
-    /* } */
+    fgets(expression, 1000, stdin);
+    expression[strcspn(expression, "\n")] = '\0'; // remove the newline character
+    if(strlen(expression) == 0){
+        printf("ERRO DE INPUT\n");
+        return ERRO_INPUT;
+    } 
+    inicializa_pilha(&p, strlen(expression));
+    char invalid_char;
+    int x = transforma(&invalid_char);
+    if(x == 1){
+        printf("a equacao posfixada fica dessa forma:\n");
+        printa();
+        int resultado = solve();
+        printf("o resultado e '%d'\n", resultado);
+    } else {
+        switch(x){
+            case CARACTER_INVALIDO:
+                printf("ALGO ALÉM DE NÚMEROS E OPERANDOS FOI COLOCADO NA EQUAÇÃO!\n");
+                printf("O CARACTER EM QUESTÃO -> %c \n", invalid_char);
+                break;
+            case FECHAR_SEM_ABRIR:
+                printf("FECHOU PARENTESES SEM ABRIR! \n");
+                break;
+            case ABRIR_SEM_FECHAR:
+                printf("ABRIU SEM FECHAR! \n");
+                break;
+        } 
+    }
 }
 

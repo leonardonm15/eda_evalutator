@@ -29,7 +29,7 @@ int empilha (Pilha *p, int v){
 
 //alterei o tipo de *info de int para char;
 //vo comentar pq nem tamo usando o info, vo retornar o valor excluido caso precise
-    int desempilha(Pilha *p /*, char *info */) {
+int desempilha(Pilha *p /*, char *info */) {
     if(pilha_vazia(*p)){
         return ERRO_PILHA_VAZIA;
     }
